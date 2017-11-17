@@ -1,4 +1,4 @@
-package assignment1.startup;
+package assignment1.client.startup;
 
 import assignment1.client.view.Client;
 

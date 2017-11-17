@@ -1,4 +1,4 @@
-package assignment1.startup;
+package assignment1.server.startup;
 
 import assignment1.server.net.Server;
 
