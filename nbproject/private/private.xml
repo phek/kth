@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/D:/Projects/kth/src/assignment1/server/model/HangmanGame.java</file>
+            <file>file:/D:/Projects/kth/src/assignment1/client/view/Client.java</file>
+            <file>file:/D:/Projects/kth/src/assignment1/server/net/GameHandler.java</file>
+            <file>file:/D:/Projects/kth/src/assignment1/client/controller/ClientController.java</file>
+            <file>file:/D:/Projects/kth/src/assignment1/client/net/ServerSocket.java</file>
+            <file>file:/D:/Projects/kth/src/assignment1/server/net/ClientSocket.java</file>
+        </group>
+    </open-files>
+</project-private>
