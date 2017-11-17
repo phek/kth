@@ -9,7 +9,7 @@ import java.net.Socket;
 /**
  * Object that handles the communication with the client and the game.
  */
-public class GameHandler implements Runnable {
+class GameHandler implements Runnable {
 
     private HangmanGame game = new HangmanGame();
     private ClientSocket clientSocket;
@@ -21,7 +21,7 @@ public class GameHandler implements Runnable {
      * @param socket The client socket.
      * @param output The Handler that controls output on the server.
      */
-    public GameHandler(Socket socket, OutputHandler output) {
+    GameHandler(Socket socket, OutputHandler output) {
         this.clientSocket = new ClientSocket(socket);
         this.output = output;
     }

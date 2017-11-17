@@ -10,7 +10,7 @@ import java.net.Socket;
 /**
  * Object that handles client sockets.
  */
-public class ClientSocket {
+class ClientSocket {
 
     private final boolean AUTO_FLUSH = true;
 
