@@ -8,7 +8,7 @@ import java.util.Scanner;
 /**
  * Object that handles the client.
  */
-public class Client implements Runnable {
+public class Client {
 
     private static final String HOST = "localhost";
     private static final int PORT = 1337;
@@ -29,11 +29,10 @@ public class Client implements Runnable {
             return;
         }
         running = true;
-        new Thread(this).start();
+        run();
     }
 
-    @Override
-    public void run() {
+    private void run() {
         output.println("Welcome, following commands are available:\n"
                 + Command.QUIT + " - Quits the program\n"
                 + Command.CONNECT + " - Connects to the game-server");

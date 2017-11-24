@@ -8,5 +8,11 @@ public interface OutputHandler {
      * @param message The message to be sent.
      */
     public void sendMessage(String message);
+    
+    /**
+     * Sends a message to an OutputHandler.
+     *
+     * @param error The error to be sent.
+     */
     public void sendError(String error);
 }
