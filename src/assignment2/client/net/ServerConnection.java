@@ -150,7 +150,7 @@ public class ServerConnection implements Runnable {
             throw new IOException("Lost connection.");
         }
         String recievedMessage = getMessageFromBuffer();
-        messageHandler.appendRecievedMessage(recievedMessage);
+        messageHandler.appendReceivedMessage(recievedMessage);
         if (messageHandler.isValidMessage()) {
             String message = messageHandler.getMessage();
             messageHandler.reset();

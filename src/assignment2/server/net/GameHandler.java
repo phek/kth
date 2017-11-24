@@ -61,7 +61,7 @@ class GameHandler {
         }
 
         String recievedMessage = getMessageFromBuffer();
-        messageHandler.appendRecievedMessage(recievedMessage);
+        messageHandler.appendReceivedMessage(recievedMessage);
 
         if (messageHandler.isValidMessage()) {
             String message = messageHandler.getMessage();
