@@ -10,8 +10,6 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.concurrent.ForkJoinPool;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Object that handles the communication with the client and the game.
@@ -50,6 +48,9 @@ class GameHandler implements Runnable {
         );
     }
 
+    /**
+     * Handles new messages in a new thread.
+     */
     @Override
     public void run() {
         try {
@@ -92,8 +93,6 @@ class GameHandler implements Runnable {
 
         String recievedMessage = getMessageFromBuffer();
         messageHandler.appendReceivedMessage(recievedMessage);
-
-        System.out.println(messageHandler.getMessage());
 
         if (messageHandler.isValidMessage()) {
             ForkJoinPool.commonPool().execute(this);
