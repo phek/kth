@@ -9,11 +9,14 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayDeque;
 import java.util.Queue;
+import java.util.concurrent.ForkJoinPool;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Object that handles the communication with the client and the game.
  */
-class GameHandler {
+class GameHandler implements Runnable {
 
     private HangmanGame game = new HangmanGame();
     private final ByteBuffer messageFromClient = ByteBuffer.allocateDirect(8192);
@@ -47,23 +50,9 @@ class GameHandler {
         );
     }
 
-    /**
-     * Reads messages from the connected client and handles the input.
-     *
-     * @throws IOException If failing to read the message.
-     */
-    void recieveMessage() throws IOException {
-        messageFromClient.clear();
-
-        int numOfReadBytes = clientChannel.read(messageFromClient);
-        if (numOfReadBytes == -1) {
-            throw new IOException("Client has closed connection.");
-        }
-
-        String recievedMessage = getMessageFromBuffer();
-        messageHandler.appendReceivedMessage(recievedMessage);
-
-        if (messageHandler.isValidMessage()) {
+    @Override
+    public void run() {
+        try {
             String message = messageHandler.getMessage();
             messageHandler.reset();
             switch (message) {
@@ -84,6 +73,30 @@ class GameHandler {
                     }
                     break;
             }
+        } catch (IOException failedToDisconnect) {
+        }
+    }
+
+    /**
+     * Reads messages from the connected client and handles the input.
+     *
+     * @throws IOException If failing to read the message.
+     */
+    void recieveMessage() throws IOException {
+        messageFromClient.clear();
+
+        int numOfReadBytes = clientChannel.read(messageFromClient);
+        if (numOfReadBytes == -1) {
+            throw new IOException("Client has closed connection.");
+        }
+
+        String recievedMessage = getMessageFromBuffer();
+        messageHandler.appendReceivedMessage(recievedMessage);
+
+        System.out.println(messageHandler.getMessage());
+
+        if (messageHandler.isValidMessage()) {
+            ForkJoinPool.commonPool().execute(this);
         }
     }
 
@@ -114,7 +127,9 @@ class GameHandler {
 
     private void queueMessage(String message) {
         ByteBuffer bufMessage = MessageHandler.createMessage(message);
-        messagesToSend.add(bufMessage);
+        synchronized (messagesToSend) {
+            messagesToSend.add(bufMessage);
+        }
         server.informUpdate(clientChannel);
     }
 

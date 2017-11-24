@@ -56,6 +56,7 @@ public class Server {
      */
     public void informUpdate(SocketChannel clientChannel) {
         clientChannel.keyFor(selector).interestOps(SelectionKey.OP_WRITE);
+        selector.wakeup();
     }
 
     private void recieveFromClient(SelectionKey key) throws IOException {
