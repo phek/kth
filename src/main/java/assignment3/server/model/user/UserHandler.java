@@ -1,55 +1,44 @@
 package assignment3.server.model.user;
 
-import assignment3.shared.Client;
-import assignment3.shared.LoginData;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 public class UserHandler {
 
-    private final Random randomID = new Random();
     private final Map<Long, User> users = Collections.synchronizedMap(new HashMap<>());
 
-    public long loginUser(Client client, LoginData loginData) {
-        String username = loginData.getUsername();
-        if (userExists(username)) {
-            throw new UserAlreadyExistsException("The username is already taken.");
-        } else {
-            long userID = randomID.nextLong();
-            User newUser = new User(userID, loginData.getUsername(), client);
-            users.put(userID, newUser);
-            return userID;
+    public void addUser(User user) {
+        users.put(user.getUserData().getUserID(), user);
+    }
+    
+    public void addNotifier(long userID, String filename) {
+        findUser(userID).addNotifier(filename);
+    }
+    
+    public void notifyUser(long creator, long editor, String filename, String action) {
+        User creatorUser = findUser(creator);
+        if (creatorUser != null) {
+            creatorUser.notifyChange(filename, getUsername(editor), action);
         }
     }
 
-    public void sendMessage(long id, String message) {
-        User user = users.get(id);
+    public void sendMessage(long userID, String message) {
+        User user = users.get(userID);
         user.send(message);
     }
 
-    /**
-     * Removes the specified participant from the conversation. No more messages
-     * will be sent to that participant.
-     *
-     * @param userID The id of the participant that shall be removed.
-     */
     public void removeUser(long userID) {
         users.remove(userID);
     }
-    
+
     public void changeUsername(long userID, String username) {
-        if (userExists(username)) {
-            sendMessage(userID, "Username already exists.");
-        } else {
-            User user = findUser(userID);
-            user.changeUsername(username);
-        }
+        User user = findUser(userID);
+        user.changeUsername(username);
     }
-    
+
     public String getUsername(long userID) {
-        return findUser(userID).getUsername();
+        return findUser(userID).getUserData().getUsername();
     }
 
     public void broadcast(long userID, String message) {
@@ -60,17 +49,17 @@ public class UserHandler {
         }
     }
 
-    private boolean userExists(String username) {
+    public boolean userIsLoggedIn(String username) {
         synchronized (users) {
             for (User user : users.values()) {
-                if (user.getUsername().equals(username)) {
+                if (user.getUserData().getUsername().equals(username)) {
                     return true;
                 }
             }
             return false;
         }
     }
-    
+
     public User findUser(long id) {
         return users.get(id);
     }

@@ -5,6 +5,7 @@ package assignment3.client.view;
  */
 public class Commands {
 
+    public static final String LIST_COMMANDS = "commands";
     public static final String QUIT = "quit";
     public static final String LOGIN = "login";
     public static final String LOGOUT = "logout";

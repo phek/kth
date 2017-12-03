@@ -1,6 +1,6 @@
 package assignment3.server.model.file;
 
-public class FileAlreadyExistsException  extends RuntimeException {
+public class FileAlreadyExistsException extends RuntimeException {
 
     public FileAlreadyExistsException(String msg) {
         super(msg);
@@ -14,3 +14,4 @@ public class FileAlreadyExistsException  extends RuntimeException {
         super(msg, rootCause);
     }
 }
+

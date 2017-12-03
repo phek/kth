@@ -28,10 +28,30 @@ public class Input implements Serializable {
 
     /**
      * @param index The index of the param.
-     * @return The specified param from the user input.
+     * @return The specified param from the user input or null if it doesn't
+     * exist.
      */
     public String getParam(int index) {
-        return input[index + 1];
+        if (input.length > index + 1) {
+            return input[index + 1];
+        } else {
+            return null;
+        }
+    }
+
+    public String getParamsAsString(int start) {
+        start++;
+        String params = "";
+        boolean first = true;
+        for (int i = start; i < input.length; i++) {
+            if (first) {
+                params += input[i];
+                first = false;
+            } else {
+                params += " " + input[i];
+            }
+        }
+        return params;
     }
 
     /**

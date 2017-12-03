@@ -3,36 +3,21 @@ package assignment3.server.model.user;
 import assignment3.server.model.command.CommandException;
 import assignment3.shared.Client;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 
 public class User {
 
-    private static final String DEFAULT_USERNAME = "anonymous";
-    private final long id;
+    private UserData userData;
     private final Client client;
-    private String username;
+    private ArrayList<String> notifyFiles = new ArrayList<>();
 
-    /**
-     * Creates a new instance with the specified username and remote node.
-     *
-     * @param id The unique identifier of this participant.
-     * @param username The username of the newly created instance.
-     * @param client The remote endpoint of the newly created instance.
-     */
-    public User(long id, String username, Client client) {
-        this.id = id;
-        this.username = username;
-        this.client = client;
+    public User() {
+        this(null, null);
     }
 
-    /**
-     * Creates a new instance with the specified remote node and the default
-     * username.
-     *
-     * @param id The unique identifier of this participant.
-     * @param client The remote endpoint of the newly created instance.
-     */
-    public User(long id, Client client) {
-        this(id, DEFAULT_USERNAME, client);
+    public User(UserData userData, Client client) {
+        this.userData = userData;
+        this.client = client;
     }
 
     /**
@@ -44,34 +29,33 @@ public class User {
         try {
             client.receiveMessage(msg);
         } catch (RemoteException re) {
-            throw new CommandException("Failed to deliver message to " + username + ".");
+            throw new CommandException("Failed to deliver message to " + userData.getUsername() + ".");
         }
     }
 
-    /**
-     * Checks if the specified remote node is the remote endpoint of this
-     * participant.
-     *
-     * @param remoteNode The searched remote node.
-     * @return <code>true</code> if the specified remote node is the remote
-     * endpoint of this participant, <code>false</code> if it is not.
-     */
-    public boolean hasRemoteNode(Client remoteNode) {
-        return remoteNode.equals(this.client);
+    public void notifyChange(String filename, String user, String action) {
+        for (String name : notifyFiles) {
+            if (name.equals(filename)) {
+                send(user + " " + action + " your file " + filename);
+            }
+        }
+    }
+
+    public void addNotifier(String filename) {
+        if (!notifyFiles.contains(filename)) {
+            notifyFiles.add(filename);
+        }
     }
 
     /**
      * @param username The new username of the user.
      */
     public void changeUsername(String username) {
-        this.username = username;
+        this.userData.setUsername(username);
     }
-    
-    /** 
-     * @return The username of the user.
-     */
-    public String getUsername() {
-        return username;
+
+    public UserData getUserData() {
+        return userData;
     }
 
 }

@@ -15,12 +15,20 @@ public class CommandLine implements Runnable {
 
     private final String DEFAULT_SERVER = "localhost";
 
+    private String[] availableCommands = {
+        Commands.LIST_COMMANDS + " - Lists all available client commands.",
+        Commands.LOGIN + " - Logins to the file-server. Usage: " + Commands.LOGIN + " <username> <password>",
+        Commands.LOGOUT + " - Logout from the file-server.",
+        Commands.QUIT + " - Quit the program."
+    };
+
     private final Scanner console = new Scanner(System.in);
     private final ThreadSafeOutput output = new ThreadSafeOutput();
     private final Client client;
     private FileServer server;
     private long userID;
     private boolean running = false;
+    private boolean connected = false;
 
     public CommandLine() throws RemoteException {
         client = new ConsoleOutput();
@@ -44,9 +52,7 @@ public class CommandLine implements Runnable {
      */
     @Override
     public void run() {
-        output.println("The following commands are available:");
-        output.println(Commands.LOGIN + " - Logins to the file-server. Usage: login username password");
-        output.println(Commands.QUIT + " - Quit the program.");
+        printCommands();
         while (running) {
             try {
                 Input input = new Input(readInput());
@@ -55,15 +61,26 @@ public class CommandLine implements Runnable {
                         running = false;
                         logout();
                         break;
+                    case Commands.LIST_COMMANDS:
+                        printCommands();
+                        if (connected) {
+                            server.handleCommand(userID, input);
+                        }
+                        break;
                     case Commands.LOGIN:
-                        lookupServer(DEFAULT_SERVER);
-                        userID = server.login(client, new LoginData(input.getParam(0), input.getParam(1)));
+                        if (!connected) {
+                            lookupServer(DEFAULT_SERVER);
+                            userID = server.login(client, new LoginData(input.getParam(0), input.getParam(1)));
+                        } else {
+                            output.printError("You're already logged in. Type: " + Commands.LOGOUT + " to logout.");
+                        }
+                        connected = true;
                         break;
                     case Commands.LOGOUT:
                         logout();
                         break;
                     default:
-                        if (server != null) {
+                        if (connected) {
                             server.handleCommand(userID, input);
                         } else {
                             output.println("You're not logged in.");
@@ -80,10 +97,10 @@ public class CommandLine implements Runnable {
     }
 
     private void logout() throws RemoteException {
+        connected = false;
         if (server != null) {
             server.disconnect(userID);
             server = null;
-            UnicastRemoteObject.unexportObject(client, false);
         } else {
             output.println("You're not logged in.");
         }
@@ -93,6 +110,13 @@ public class CommandLine implements Runnable {
         return console.nextLine();
     }
 
+    private void printCommands() {
+        output.println("The following client commands are available:");
+        for (String command : availableCommands) {
+            output.println(command);
+        }
+    }
+
     private class ConsoleOutput extends UnicastRemoteObject implements Client {
 
         public ConsoleOutput() throws RemoteException {
@@ -100,7 +124,7 @@ public class CommandLine implements Runnable {
 
         @Override
         public void receiveMessage(String msg) {
-            output.println((String) msg);
+            output.println("<Server> " + msg);
         }
     }
 }

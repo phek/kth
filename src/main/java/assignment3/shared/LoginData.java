@@ -23,7 +23,7 @@ public class LoginData implements Serializable {
      * @return the value of password
      */
     public String getPassword() {
-        return password;
+        return password != null ? password : "";
     }
 
     /**
