@@ -1,8 +1,1 @@
-# IDEs and editors
-nbproject/
-
-# compiled output
-test/
-build/
-build.xml
-manifest.mf
+/target/
