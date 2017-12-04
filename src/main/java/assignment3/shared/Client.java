@@ -8,7 +8,7 @@ public interface Client extends Remote {
     /**
      * The specified message is received by the client.
      *
-     * @param msg The message that shall be received.
+     * @param message The message that shall be received.
      */
-    void receiveMessage(String msg) throws RemoteException;
+    void receiveMessage(String message) throws RemoteException;
 }

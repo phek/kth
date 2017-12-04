@@ -4,7 +4,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface FileServer extends Remote {
-    
+
     /**
      * The default URI of the chat server in the RMI registry.
      */
@@ -14,10 +14,10 @@ public interface FileServer extends Remote {
      * Logs the user in on the server.
      *
      * @param client The remote endpoint of the user. This is the remote object
-     *                   that will be used to send messages to the user.
-     * @param loginData The credentials of the user. 
-     * @return The id of the user. A user must use this id for identification
-     *         in all communication with the server.
+     * that will be used to send messages to the user.
+     * @param loginData The credentials of the user.
+     * @return The id of the user. A user must use this id for identification in
+     * all communication with the server.
      */
     long login(Client client, LoginData loginData) throws RemoteException;
 
@@ -30,8 +30,8 @@ public interface FileServer extends Remote {
     void handleCommand(long userID, Input input) throws RemoteException;
 
     /**
-     * The specified user is removed from the server, no more messages will be sent to
-     * this node.
+     * The specified user is removed from the server, no more messages will be
+     * sent to this node.
      *
      * @param userID The id of the leaving user.
      */

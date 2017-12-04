@@ -5,34 +5,46 @@ import assignment3.shared.Client;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
+/**
+ * Server user object.
+ */
 public class User {
 
     private UserData userData;
     private final Client client;
     private ArrayList<String> notifyFiles = new ArrayList<>();
 
-    public User() {
-        this(null, null);
-    }
-
+    /**
+     * Creates a new user.
+     *
+     * @param userData The data of the user.
+     * @param client The remote node of the client.
+     */
     public User(UserData userData, Client client) {
         this.userData = userData;
         this.client = client;
     }
 
     /**
-     * Send the specified message to the participant's remote node.
+     * Send the message to the client's remote node.
      *
-     * @param msg The message to send.
+     * @param message The message to send.
      */
-    public void send(String msg) {
+    public void send(String message) {
         try {
-            client.receiveMessage(msg);
+            client.receiveMessage(message);
         } catch (RemoteException re) {
             throw new CommandException("Failed to deliver message to " + userData.getUsername() + ".");
         }
     }
 
+    /**
+     * Notify the user that the file has been changed.
+     *
+     * @param filename The file.
+     * @param user The user that changed it.
+     * @param action The action.
+     */
     public void notifyChange(String filename, String user, String action) {
         for (String name : notifyFiles) {
             if (name.equals(filename)) {
@@ -41,6 +53,11 @@ public class User {
         }
     }
 
+    /**
+     * Registers notifications on the file.
+     *
+     * @param filename The file.
+     */
     public void addNotifier(String filename) {
         if (!notifyFiles.contains(filename)) {
             notifyFiles.add(filename);
@@ -48,12 +65,17 @@ public class User {
     }
 
     /**
+     * Changes the username of the user.
+     *
      * @param username The new username of the user.
      */
     public void changeUsername(String username) {
         this.userData.setUsername(username);
     }
 
+    /**
+     * @return The UserData object.
+     */
     public UserData getUserData() {
         return userData;
     }

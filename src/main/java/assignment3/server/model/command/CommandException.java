@@ -1,8 +1,5 @@
 package assignment3.server.model.command;
 
-/**
- * Thrown when the expected message could not be received.
- */
 public class CommandException extends RuntimeException {
 
     public CommandException(String msg) {

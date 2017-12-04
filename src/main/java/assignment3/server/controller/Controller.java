@@ -17,6 +17,9 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 
+/**
+ * The file-system controller and remote node called by clients.
+ */
 public class Controller extends UnicastRemoteObject implements FileServer {
 
     private final DatabaseHandler db;
@@ -41,6 +44,7 @@ public class Controller extends UnicastRemoteObject implements FileServer {
 
     @Override
     public long login(Client client, LoginData loginData) {
+        boolean newUser = false;
         if (userManager.userIsLoggedIn(loginData.getUsername())) {
             throw new UserAlreadyExistsException("User already logged in");
         }
@@ -52,14 +56,16 @@ public class Controller extends UnicastRemoteObject implements FileServer {
                 } else {
                     user = new UserData(loginData);
                     db.addUser(user);
+                    newUser = true;
                 }
             }
             userManager.addUser(new User(user, client));
             sendCommandlist(user.getUserID());
-            sendFilelistToUser(user.getUserID());
             return user.getUserID();
         } finally {
-            db.commit();
+            if (!newUser) {
+                db.commit();
+            }
         }
     }
 
@@ -70,143 +76,28 @@ public class Controller extends UnicastRemoteObject implements FileServer {
         }
         switch (input.getCommand()) {
             case Commands.LIST_FILES:
-                try {
-                    sendFilelistToUser(userID);
-                } finally {
-                    db.commit();
-                }
+                sendFilelistToUser(userID);
                 break;
             case Commands.LIST_COMMANDS:
                 sendCommandlist(userID);
                 break;
             case Commands.ADD_FILE:
-                String filename = input.getParam(0);
-                try {
-                    if (filename == null || db.fileExists(filename)) {
-                        throw new FileAlreadyExistsException("Filename already exists");
-                    }
-                    String permission = input.getParam(1);
-                    boolean read = false;
-                    boolean write = false;
-                    if (permission != null) {
-                        switch (permission) {
-                            case "r":
-                                read = true;
-                                break;
-                            case "w":
-                                write = true;
-                                break;
-                            case "rw":
-                                read = true;
-                                write = true;
-                                break;
-                        }
-                    }
-                    String content = input.getParamsAsString(2);
-                    db.addFile(new File(filename, userID, read, write, content));
-                    if (read || write) {
-                        userManager.broadcast(userID, filename + " added by " + userManager.getUsername(userID));
-                    } else {
-                        userManager.sendMessage(userID, filename + " added");
-                    }
-                } finally {
-                    db.commit();
-                }
+                addFile(input, userID);
                 break;
             case Commands.READ_FILE:
-                filename = input.getParam(0);
-                try {
-                    File file = db.getFile(filename);
-                    if (file != null) {
-                        if (file.getCreator() == userID || file.isReadable()) {
-                            userManager.sendMessage(userID, file.getContent());
-                            if (file.getCreator() != userID) {
-                                userManager.notifyUser(file.getCreator(), userID, filename, "read");
-                            }
-                        } else {
-                            userManager.sendMessage(userID, "You do not have permission to do that");
-                        }
-                    } else {
-                        userManager.sendMessage(userID, "File doesn't exist");
-                    }
-                } finally {
-                    db.commit();
-                }
+                readFile(input, userID);
                 break;
             case Commands.NOTIFY_FILE:
-                filename = input.getParam(0);
-                try {
-                    File file = db.getFile(filename);
-                    if (file != null) {
-                        if (file.getCreator() == userID) {
-                            userManager.addNotifier(userID, filename);
-                            userManager.sendMessage(userID, "You will now be notified of changes to " + filename);
-                        } else {
-                            userManager.sendMessage(userID, "You do not have permission to do that");
-                        }
-                    } else {
-                        userManager.sendMessage(userID, "File doesn't exist");
-                    }
-                } finally {
-                    db.commit();
-                }
+                addNotifier(input, userID);
                 break;
             case Commands.WRITE_FILE:
-                filename = input.getParam(0);
-                try {
-                    File file = db.getFile(filename);
-                    if (file != null) {
-                        if (file.getCreator() == userID || file.isWriteable()) {
-                            String content = input.getParamsAsString(1);
-                            db.updateFileContent(filename, content);
-                            userManager.sendMessage(userID, filename + " updated");
-                            if (file.getCreator() != userID) {
-                                userManager.notifyUser(file.getCreator(), userID, filename, "wrote to");
-                            }
-                        } else {
-                            userManager.sendMessage(userID, "You do not have permission to do that");
-                        }
-                    } else {
-                        userManager.sendMessage(userID, "File doesn't exist");
-                    }
-                } finally {
-                    db.commit();
-                }
+                writeFile(input, userID);
                 break;
             case Commands.REMOVE_FILE:
-                filename = input.getParam(0);
-                try {
-                    File file = db.getFile(filename);
-                    if (file != null) {
-                        if (file.getCreator() == userID || file.isWriteable()) {
-                            db.removeFile(filename);
-                            userManager.sendMessage(userID, filename + " removed");
-                            if (file.getCreator() != userID) {
-                                userManager.notifyUser(file.getCreator(), userID, filename, "deleted");
-                            }
-                        } else {
-                            userManager.sendMessage(userID, "You do not have permission to do that");
-                        }
-                    } else {
-                        userManager.sendMessage(userID, "File doesn't exist");
-                    }
-                } finally {
-                    db.commit();
-                }
+                removeFile(input, userID);
                 break;
             case Commands.CHANGE_NAME:
-                String newName = input.getParam(0);
-                try {
-                    if (!db.usernameExists(newName)) {
-                        db.changeUsername(userManager.getUsername(userID), newName);
-                        userManager.changeUsername(userID, newName);
-                        userManager.sendMessage(userID, "Username updated to " + newName);
-                    } else {
-                        userManager.sendMessage(userID, "Username already exists");
-                    }
-                } finally {
-                    db.commit();
-                }
+                changeName(input, userID);
                 break;
             default:
                 userManager.sendMessage(userID, "Command not found");
@@ -218,26 +109,165 @@ public class Controller extends UnicastRemoteObject implements FileServer {
         userManager.removeUser(userID);
     }
 
-    private void sendFilelistToUser(long userID) {
-        List<File> files = db.getAllFiles();
-        userManager.sendMessage(userID, "Listing existing files:");
-        for (File file : files) {
-            String read = "";
-            String write = "";
-            if (file.isReadable()) {
-                read = "r";
+    private void addFile(Input input, long userID) {
+        String filename = input.getParam(0);
+        try {
+            if (filename == null || db.fileExists(filename)) {
+                throw new FileAlreadyExistsException("Filename already exists");
             }
-            if (file.isWriteable()) {
-                write = "w";
-            }
-            String fileString = file.getFilename() + " <" + read + write + ">" + " (" + file.getSize() + " kb)";
-            if (file.isPublic()) {
-                userManager.sendMessage(userID, fileString);
-            } else {
-                if (userID == file.getCreator()) {
-                    userManager.sendMessage(userID, fileString);
+            String permission = input.getParam(1);
+            boolean read = false;
+            boolean write = false;
+            if (permission != null) {
+                switch (permission) {
+                    case "r":
+                        read = true;
+                        break;
+                    case "w":
+                        write = true;
+                        break;
+                    case "rw":
+                        read = true;
+                        write = true;
+                        break;
                 }
             }
+            String content = input.getParamsAsString(2);
+            db.addFile(new File(filename, userID, read, write, content));
+            if (read || write) {
+                userManager.broadcast(filename + " added by " + userManager.getUsername(userID));
+            } else {
+                userManager.sendMessage(userID, filename + " added");
+            }
+        } finally {
+            db.commit();
+        }
+    }
+
+    private void readFile(Input input, long userID) {
+        String filename = input.getParam(0);
+        try {
+            File file = db.getFile(filename);
+            if (file != null) {
+                if (file.getCreator() == userID || file.isReadable()) {
+                    userManager.sendMessage(userID, file.getContent());
+                    if (file.getCreator() != userID) {
+                        userManager.notifyUser(file.getCreator(), userID, filename, "read");
+                    }
+                } else {
+                    userManager.sendMessage(userID, "You do not have permission to do that");
+                }
+            } else {
+                userManager.sendMessage(userID, "File doesn't exist");
+            }
+        } finally {
+            db.commit();
+        }
+    }
+
+    private void writeFile(Input input, long userID) {
+        String filename = input.getParam(0);
+        try {
+            File file = db.getFile(filename);
+            if (file != null) {
+                if (file.getCreator() == userID || file.isWritable()) {
+                    String content = input.getParamsAsString(1);
+                    db.updateFileContent(filename, content);
+                    userManager.sendMessage(userID, filename + " updated");
+                    if (file.getCreator() != userID) {
+                        userManager.notifyUser(file.getCreator(), userID, filename, "wrote to");
+                    }
+                } else {
+                    userManager.sendMessage(userID, "You do not have permission to do that");
+                }
+            } else {
+                userManager.sendMessage(userID, "File doesn't exist");
+            }
+        } finally {
+            db.commit();
+        }
+    }
+
+    private void removeFile(Input input, long userID) {
+        String filename = input.getParam(0);
+        try {
+            File file = db.getFile(filename);
+            if (file != null) {
+                if (file.getCreator() == userID || file.isWritable()) {
+                    db.removeFile(filename);
+                    userManager.sendMessage(userID, filename + " removed");
+                    if (file.getCreator() != userID) {
+                        userManager.notifyUser(file.getCreator(), userID, filename, "deleted");
+                    }
+                } else {
+                    userManager.sendMessage(userID, "You do not have permission to do that");
+                }
+            } else {
+                userManager.sendMessage(userID, "File doesn't exist");
+            }
+        } finally {
+            db.commit();
+        }
+    }
+
+    private void addNotifier(Input input, long userID) {
+        String filename = input.getParam(0);
+        try {
+            File file = db.getFile(filename);
+            if (file != null) {
+                if (file.getCreator() == userID) {
+                    userManager.addNotifier(userID, filename);
+                    userManager.sendMessage(userID, "You will now be notified of changes to " + filename);
+                } else {
+                    userManager.sendMessage(userID, "You do not have permission to do that");
+                }
+            } else {
+                userManager.sendMessage(userID, "File doesn't exist");
+            }
+        } finally {
+            db.commit();
+        }
+    }
+
+    private void changeName(Input input, long userID) {
+        String newName = input.getParam(0);
+        try {
+            if (!db.usernameExists(newName)) {
+                db.changeUsername(userManager.getUsername(userID), newName);
+                userManager.changeUsername(userID, newName);
+                userManager.sendMessage(userID, "Username updated to " + newName);
+            } else {
+                userManager.sendMessage(userID, "Username already exists");
+            }
+        } finally {
+            db.commit();
+        }
+    }
+
+    private void sendFilelistToUser(long userID) {
+        try {
+            List<File> files = db.getAllFiles();
+            userManager.sendMessage(userID, "Listing existing files:");
+            for (File file : files) {
+                String read = "";
+                String write = "";
+                if (file.isReadable()) {
+                    read = "r";
+                }
+                if (file.isWritable()) {
+                    write = "w";
+                }
+                String fileString = file.getFilename() + " <" + read + write + ">" + " (" + file.getSize() + " kb)";
+                if (file.isPublic()) {
+                    userManager.sendMessage(userID, fileString);
+                } else {
+                    if (userID == file.getCreator()) {
+                        userManager.sendMessage(userID, fileString);
+                    }
+                }
+            }
+        } finally {
+            db.commit();
         }
     }
 

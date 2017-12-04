@@ -11,7 +11,7 @@ public class Input implements Serializable {
     private String delimiter = " ";
 
     /**
-     * Creates a new InputHandler.
+     * Creates an object to handle the data.
      *
      * @param input The user input.
      */
@@ -39,6 +39,12 @@ public class Input implements Serializable {
         }
     }
 
+    /**
+     * Converts all parameters after the starting point to a space-separated string.
+     *
+     * @param start The starting point. 
+     * @return All parameters after the starting point separated by a space.
+     */
     public String getParamsAsString(int start) {
         start++;
         String params = "";

@@ -50,11 +50,19 @@ public class UserData implements UserDataDTO {
     @Column(name = "OPTLOCK")
     private int versionNum;
 
+    /**
+     * A public no-arg constructor is required by JPA.
+     */
     public UserData() {
         this.username = null;
         this.password = null;
     }
 
+    /**
+     * Creates user-data from the login-data.
+     *
+     * @param loginData The login-data.
+     */
     public UserData(LoginData loginData) {
         this.username = loginData.getUsername();
         this.password = loginData.getPassword();

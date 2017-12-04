@@ -2,6 +2,9 @@ package assignment3.dto;
 
 import java.io.Serializable;
 
+/**
+ * The read-only view of user-data.
+ */
 public interface UserDataDTO extends Serializable {
     
     /** 

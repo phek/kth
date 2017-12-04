@@ -13,6 +13,10 @@ import javax.persistence.Persistence;
 import assignment3.dto.UserDataDTO;
 import assignment3.server.model.user.UserData;
 
+/**
+ * This is a data access object (DAO) that encapsulates all database calls in
+ * the program.
+ */
 public class DatabaseHandler {
 
     private final EntityManagerFactory factory;
@@ -22,15 +26,37 @@ public class DatabaseHandler {
         factory = Persistence.createEntityManagerFactory("KTH");
     }
 
+    /**
+     * Adds the file to the database. This method does not commit your request.
+     * This needs to be done manually after all desired requests are performed.
+     *
+     * @param file The file to add.
+     */
     public void addFile(FileDTO file) {
         EntityManager manager = startTransaction();
         manager.persist(file);
     }
 
+    /**
+     * Checks if the file exists in the database. This method does not commit
+     * your request. This needs to be done manually after all desired requests
+     * are performed.
+     *
+     * @param filename The name of the file.
+     * @return true if the file exists, false otherwise.
+     */
     public boolean fileExists(String filename) {
         return getFile(filename) != null;
     }
 
+    /**
+     * Gets the file from the database. This method does not commit your
+     * request. This needs to be done manually after all desired requests are
+     * performed.
+     *
+     * @param filename The name of the file.
+     * @return The file if found, null otherwise.
+     */
     public File getFile(String filename) {
         EntityManager manager = startTransaction();
         try {
@@ -42,22 +68,39 @@ public class DatabaseHandler {
         }
     }
 
+    /**
+     * Updates the content of the file. This method does not commit your
+     * request. This needs to be done manually after all desired requests are
+     * performed.
+     *
+     * @param filename The name of the file.
+     * @param content The content to be written.
+     */
     public void updateFileContent(String filename, String content) {
         File file = getFile(filename);
         file.write(content);
     }
 
-    public boolean removeFile(String filename) {
+    /**
+     * Removes the file from the database. This method does not commit your
+     * request. This needs to be done manually after all desired requests are
+     * performed.
+     *
+     * @param filename The filename.
+     */
+    public void removeFile(String filename) {
         EntityManager manager = startTransaction();
-        try {
-            manager.createNamedQuery("removeFileByName", File.class)
-                    .setParameter("filename", filename).executeUpdate();
-            return true;
-        } catch (Exception ex) {
-            return false;
-        }
+        manager.createNamedQuery("removeFileByName", File.class)
+                .setParameter("filename", filename).executeUpdate();
     }
 
+    /**
+     * Gets all the files from the database. This method does not commit your
+     * request. This needs to be done manually after all desired requests are
+     * performed.
+     *
+     * @return A list of the files.
+     */
     public List<File> getAllFiles() {
         EntityManager manager = startTransaction();
         try {
@@ -67,6 +110,11 @@ public class DatabaseHandler {
         }
     }
 
+    /**
+     * Adds the user to the database. This method commits automatically.
+     *
+     * @param user The user to be added.
+     */
     public void addUser(UserDataDTO user) {
         try {
             EntityManager manager = startTransaction();
@@ -76,15 +124,39 @@ public class DatabaseHandler {
         }
     }
 
+    /**
+     * Checks if the username exists in the database. This method does not
+     * commit your request. This needs to be done manually after all desired
+     * requests are performed.
+     *
+     * @param username The username.
+     * @return true if the user exists, false otherwise.
+     */
     public boolean usernameExists(String username) {
         return getUser(username) != null;
     }
 
+    /**
+     * Updates the username of the user. This method does not commit your
+     * request. This needs to be done manually after all desired requests are
+     * performed.
+     *
+     * @param username The current username.
+     * @param newName The new username.
+     */
     public void changeUsername(String username, String newName) {
         UserData userData = getUser(username);
         userData.setUsername(newName);
     }
 
+    /**
+     * Gets the user-data from the database. This method does not commit your
+     * request. This needs to be done manually after all desired requests are
+     * performed.
+     *
+     * @param loginData The login data.
+     * @return The user if found, null otherwise.
+     */
     public UserData getUser(LoginData loginData) {
         EntityManager manager = startTransaction();
         try {
@@ -97,6 +169,9 @@ public class DatabaseHandler {
         }
     }
 
+    /**
+     * Commits all uncommitted requests.
+     */
     public void commit() {
         endTransaction();
     }

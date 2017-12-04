@@ -11,6 +11,9 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Scanner;
 
+/**
+ * The view of the client.
+ */
 public class CommandLine implements Runnable {
 
     private final String DEFAULT_SERVER = "localhost";
@@ -35,9 +38,8 @@ public class CommandLine implements Runnable {
     }
 
     /**
-     * Starts the interpreter. The interpreter will be waiting for user input
-     * when this method returns. Calling <code>start</code> on an interpreter
-     * that is already started has no effect.
+     * Starts the command-line. The command-line will await input from the user
+     * and run until the user exits the program.
      */
     public void start() {
         if (running) {
@@ -48,7 +50,7 @@ public class CommandLine implements Runnable {
     }
 
     /**
-     * Interprets and performs user commands.
+     * Reads input from the command-line and handles the commands.
      */
     @Override
     public void run() {

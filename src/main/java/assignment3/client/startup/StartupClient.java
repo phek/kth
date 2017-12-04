@@ -4,9 +4,10 @@ import assignment3.client.view.CommandLine;
 import java.rmi.RemoteException;
 
 /**
- * Starts the chat client.
+ * Starts the client.
  */
 public class StartupClient {
+
     /**
      * @param args There are no command line arguments.
      */

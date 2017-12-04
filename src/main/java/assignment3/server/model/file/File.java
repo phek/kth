@@ -19,7 +19,8 @@ import javax.persistence.Version;
             name = "getFileByName",
             query = "SELECT f FROM File f WHERE f.filename LIKE :filename",
             lockMode = LockModeType.OPTIMISTIC
-    ),
+    )
+    ,
     @NamedQuery(
             name = "getAllFiles",
             query = "SELECT f FROM File f",
@@ -33,43 +34,66 @@ public class File implements FileDTO {
     @Id
     @Column(name = "filename", nullable = false)
     private String filename;
-    
+
     @Column(name = "creator", nullable = false)
     private long creator;
-    
+
     @Column(name = "filesize", nullable = false)
     private int filesize;
-    
+
     @Column(name = "isReadable", nullable = false)
     private boolean isReadable;
-    
-    @Column(name = "isWriteable", nullable = false)
-    private boolean isWriteable;
-    
+
+    @Column(name = "isWritable", nullable = false)
+    private boolean isWritable;
+
     @Column(name = "content", nullable = false)
     private String content;
-    
+
     @Version
     @Column(name = "OPTLOCK")
     private int versionNum;
 
+    /**
+     * A public no-arg constructor is required by JPA.
+     */
     public File() {
         this(null, 0, false, false, "");
     }
-    
+
+    /**
+     * Creates a private file.
+     *
+     * @param filename The filename.
+     * @param creator The userID of the creator.
+     */
     public File(String filename, long creator) {
         this(filename, creator, false, false, "");
     }
 
-    public File(String filename, long creator, boolean isReadable, boolean isWriteable, String content) {
+    /**
+     * Creates a file with specific permissions.
+     *
+     * @param filename The filename.
+     * @param creator The userID of the creator.
+     * @param isReadable If it's readable.
+     * @param isWritable If it's writable.
+     * @param content The content of the file.
+     */
+    public File(String filename, long creator, boolean isReadable, boolean isWritable, String content) {
         this.filename = filename;
         this.creator = creator;
         this.isReadable = isReadable;
-        this.isWriteable = isWriteable;
+        this.isWritable = isWritable;
         this.content = content;
         this.filesize = content.length();
     }
-    
+
+    /**
+     * Writes to the file.
+     *
+     * @param content The content to be written.
+     */
     public void write(String content) {
         this.content = content;
         this.filesize = content.length();
@@ -77,7 +101,7 @@ public class File implements FileDTO {
 
     @Override
     public boolean isPublic() {
-        return isReadable || isWriteable;
+        return isReadable || isWritable;
     }
 
     @Override
@@ -86,8 +110,8 @@ public class File implements FileDTO {
     }
 
     @Override
-    public boolean isWriteable() {
-        return isWriteable;
+    public boolean isWritable() {
+        return isWritable;
     }
 
     @Override

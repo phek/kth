@@ -7,7 +7,12 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
+
+/**
+ * Starts the server and binds it in the RMI registry.
+ */
 public class StartupServer {
+
     /**
      * @param args There are no command line arguments.
      */
@@ -20,7 +25,7 @@ public class StartupServer {
             System.out.println("Could not start server.");
         }
     }
-    
+
     private void startRegistry() throws RemoteException {
         try {
             LocateRegistry.getRegistry().list();
