@@ -19,6 +19,7 @@ public class ConvertManager implements Serializable {
     @EJB
     private Controller controller;
     private Money convertedMoney;
+    private String[] currencies;
 
     public String getConvertedCurrency() {
         return convertedMoney == null ? null : convertedMoney.getCurrency().getName();
@@ -29,15 +30,22 @@ public class ConvertManager implements Serializable {
     }
 
     public String[] getCurrencies() {
-        return controller.getCurrencies();
+        if (currencies == null) {
+            currencies = controller.getCurrencies();
+        }
+        return currencies;
     }
 
     public void convert() {
-        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-        System.out.println(request.getParameter("convert:amount"));
-        double amount = Double.parseDouble(request.getParameter("convert:amount"));
-        String currency = request.getParameter("convert:currency");
-        String toCurrency = request.getParameter("convert:toCurrency");
-        convertedMoney = controller.convertMoney(amount, currency, toCurrency);
+        try {
+            HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+            System.out.println(request.getParameter("convert:amount"));
+            double amount = Double.parseDouble(request.getParameter("convert:amount"));
+            String currency = request.getParameter("convert:currency");
+            String toCurrency = request.getParameter("convert:toCurrency");
+            convertedMoney = controller.convertMoney(amount, currency, toCurrency);
+        } catch (Exception ex) {
+            System.out.println("Invalid request.");
+        }
     }
 }
