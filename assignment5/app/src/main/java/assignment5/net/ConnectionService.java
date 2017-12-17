@@ -15,6 +15,9 @@ import java.net.Socket;
 
 import assignment5.view.MainActivity;
 
+/**
+ * The service that handles the connection to the server.
+ */
 public class ConnectionService extends Service {
 
     private final IBinder binder = new MyBinder();
@@ -46,6 +49,9 @@ public class ConnectionService extends Service {
         Toast.makeText(this, "Destroyed", Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Binder class.
+     */
     public class MyBinder extends Binder {
         public ConnectionService getService() {
             return ConnectionService.this;
@@ -53,7 +59,8 @@ public class ConnectionService extends Service {
     }
 
     /**
-     * Creates a new socket between the host and the server.
+     * Creates a new socket between the host and the server and listens for incoming messages from
+     * the server. This is done in a new thread.
      *
      * @param server_host The server host.
      * @param server_port The server port.
@@ -67,7 +74,7 @@ public class ConnectionService extends Service {
     }
 
     /**
-     * Destroys the socket and disconnects from the server.
+     * Destroys the socket and disconnects from the server. This is done in a new thread.
      */
     public void disconnect() {
         new DisonnectTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -77,6 +84,10 @@ public class ConnectionService extends Service {
         return connected;
     }
 
+    /**
+     * Sends a new message to the server. This is done in a new thread.
+     * @param message The message to be sent.
+     */
     public void sendMessage(String message) {
         new MessageSender().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, message);
     }

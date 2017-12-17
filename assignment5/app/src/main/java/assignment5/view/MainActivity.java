@@ -22,11 +22,14 @@ import android.widget.TextView;
 import assignment5.net.ConnectionService;
 import assignment5.R;
 
+/**
+ * The main activity of the application.
+ */
 public class MainActivity extends AppCompatActivity implements ServiceConnection {
 
-    public static final String BROADCAST_MSG = "!broadcast";
-    public static final String CONNECTED_MSG = "!connected";
-    public static final String DISCONNECTED_MSG = "!disconnected";
+    public static final String BROADCAST_MSG = "#new_message";
+    public static final String CONNECTED_MSG = "#connected";
+    public static final String DISCONNECTED_MSG = "#disconnected";
 
     private static final int PORT = 1337;
     private ConnectionService connectionService;
