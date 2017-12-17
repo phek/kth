@@ -5,6 +5,14 @@ import java.math.RoundingMode;
 
 public class Converter {
 
+    /**
+     * Converts the specified amount to the new currency.
+     *
+     * @param amount The amount.
+     * @param currency The currency of the specified amount.
+     * @param toCurrency The new currency.
+     * @return The amount of the new currency.
+     */
     public Money convert(double amount, Currency currency, Currency toCurrency) {
         double swedishMoney = curToSek(amount, currency);
         return sekToCurrency(swedishMoney, toCurrency);

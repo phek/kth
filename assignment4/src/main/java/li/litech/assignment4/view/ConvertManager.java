@@ -21,14 +21,23 @@ public class ConvertManager implements Serializable {
     private Money convertedMoney;
     private String[] currencies;
 
+    /**
+     * @return The currency of the converted money.
+     */
     public String getConvertedCurrency() {
         return convertedMoney == null ? null : convertedMoney.getCurrency().getName();
     }
 
+    /**
+     * @return The amount of the converted money.
+     */
     public double getConvertedAmount() {
         return convertedMoney == null ? 0 : convertedMoney.getAmount();
     }
 
+    /**
+     * @return A String list of all available currencies.
+     */
     public String[] getCurrencies() {
         if (currencies == null) {
             currencies = controller.getCurrencies();
@@ -36,6 +45,9 @@ public class ConvertManager implements Serializable {
         return currencies;
     }
 
+    /**
+     * Converts the selected currency to the new currency.
+     */
     public void convert() {
         try {
             HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();

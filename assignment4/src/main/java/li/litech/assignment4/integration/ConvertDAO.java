@@ -17,6 +17,13 @@ public class ConvertDAO {
     @PersistenceContext(unitName = "convertPU")
     private EntityManager em;
 
+    /**
+     * Gets the currency.
+     *
+     * @param name The name of the currency.
+     * @return The currency object if found, throws EntityNotFoundException
+     * otherwise.
+     */
     public Currency getCurrencyByName(String name) {
         Currency currency = em.find(Currency.class, name);
         if (currency == null) {
@@ -25,9 +32,14 @@ public class ConvertDAO {
         return currency;
     }
 
+    /**
+     * Gets all existing currencies.
+     *
+     * @return A list of the existing currencies.
+     */
     public List<Currency> getAllCurrencies() {
         Query query = em.createQuery("SELECT e FROM Currency e");
         return query.getResultList();
     }
-    
+
 }

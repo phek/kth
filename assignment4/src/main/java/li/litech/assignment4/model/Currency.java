@@ -4,26 +4,30 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-/**
- *
- * @author Philip Ekblom
- */
-
 @Entity
 public class Currency implements Serializable {
-    
+
     @Id
     private String name;
     private double rate;
 
+    /**
+     * Empty constructor, required for JPA.
+     */
     public Currency() {
     }
 
+    /**
+     * Constructor
+     *
+     * @param name The name of the currency.
+     * @param rate The rate between the currency and SEK.
+     */
     public Currency(String name, double rate) {
         this.name = name;
         this.rate = rate;
     }
-    
+
     /**
      * @return The name of the currency.
      */
@@ -32,7 +36,7 @@ public class Currency implements Serializable {
     }
 
     /**
-     * @return The rate between 1 SEK and the currency.
+     * @return The rate between the currency and SEK.
      */
     public double getRate() {
         return this.rate;
