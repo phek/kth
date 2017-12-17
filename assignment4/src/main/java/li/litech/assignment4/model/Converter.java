@@ -3,10 +3,14 @@ package li.litech.assignment4.model;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+/**
+ * Handles conversion between different currencies.
+ */
 public class Converter {
 
     /**
-     * Converts the specified amount to the new currency.
+     * Converts the specified amount to the new currency. Rounding to two
+     * decimals.
      *
      * @param amount The amount.
      * @param currency The currency of the specified amount.
