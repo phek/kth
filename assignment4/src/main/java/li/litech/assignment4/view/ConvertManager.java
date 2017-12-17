@@ -39,12 +39,15 @@ public class ConvertManager implements Serializable {
     public void convert() {
         try {
             HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-            System.out.println(request.getParameter("convert:amount"));
             double amount = Double.parseDouble(request.getParameter("convert:amount"));
             String currency = request.getParameter("convert:currency");
             String toCurrency = request.getParameter("convert:toCurrency");
             convertedMoney = controller.convertMoney(amount, currency, toCurrency);
         } catch (Exception ex) {
+            /* 
+             Do nothing, just tell the server an invalid request was performed.
+             Should be improved by informing the user too.
+             */
             System.out.println("Invalid request.");
         }
     }

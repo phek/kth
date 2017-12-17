@@ -19,7 +19,7 @@ import li.litech.assignment4.model.Money;
 public class Controller {
 
     @EJB ConvertDAO db;
-    private Converter converter = new Converter();
+    private final Converter converter = new Converter();
     
     public Money convertMoney(double amount, String currency, String toCurrency) {
         Currency cur = db.getCurrencyByName(currency);

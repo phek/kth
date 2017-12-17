@@ -18,9 +18,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.util.Objects;
 
 import assignment5.net.ConnectionService;
 import assignment5.R;

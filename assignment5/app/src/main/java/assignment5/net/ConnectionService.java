@@ -14,7 +14,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 import assignment5.view.MainActivity;
-import assignment5.shared.Command;
 
 public class ConnectionService extends Service {
 
@@ -125,7 +124,7 @@ public class ConnectionService extends Service {
         protected Void doInBackground(Void... voids) {
             try {
                 if (socket != null) {
-                    toServer.println(Command.DISCONNECT);
+                    toServer.println(Commands.DISCONNECT);
                     socket.close();
                     socket = null;
                     connected = false;
